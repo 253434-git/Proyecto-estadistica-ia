@@ -113,3 +113,37 @@ if df is not None:
     else:
         st.success(f"**Decisión:** No se rechaza la Hipótesis Nula (H0).")
         st.write("No hay evidencia suficiente para rechazar la igualdad de medias.")
+
+    # --- MÓDULO 4: GRÁFICA DE LA CURVA NORMAL ---
+    st.divider()
+    st.subheader("📈 Curva de Distribución y Región Crítica")
+
+    # Crear puntos para la curva normal estándar
+    x = np.linspace(-4, 4, 1000)
+    y = stats.norm.pdf(x, 0, 1)
+    
+    fig_z = go.Figure()
+
+    # Dibujar la curva normal
+    fig_z.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Normal Estándar', line=dict(color='blue')))
+
+    # Sombrear región de rechazo
+    if tipo_test == "Bilateral":
+        # Izquierda
+        x_left = np.linspace(-4, z_critico_inf, 100)
+        fig_z.add_trace(go.Scatter(x=x_left, y=stats.norm.pdf(x_left), fill='tozeroy', name='Rechazo', line_color='red'))
+        # Derecha
+        x_right = np.linspace(z_critico_sup, 4, 100)
+        fig_z.add_trace(go.Scatter(x=x_right, y=stats.norm.pdf(x_right), fill='tozeroy', name='Rechazo', line_color='red', showlegend=False))
+    elif tipo_test == "Cola izquierda":
+        x_left = np.linspace(-4, z_critico, 100)
+        fig_z.add_trace(go.Scatter(x=x_left, y=stats.norm.pdf(x_left), fill='tozeroy', name='Rechazo', line_color='red'))
+    else: # Cola derecha
+        x_right = np.linspace(z_critico, 4, 100)
+        fig_z.add_trace(go.Scatter(x=x_right, y=stats.norm.pdf(x_right), fill='tozeroy', name='Rechazo', line_color='red'))
+
+    # Línea del estadístico Z calculado
+    fig_z.add_vline(x=z_stat, line_width=3, line_dash="dash", line_color="green", annotation_text=f"Z calculada: {z_stat:.2f}")
+
+    fig_z.update_layout(title="Zonas de Rechazo (Rojo) vs Z Calculada (Línea Verde)", xaxis_title="Z", yaxis_title="Densidad")
+    st.plotly_chart(fig_z)
