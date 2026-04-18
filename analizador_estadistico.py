@@ -12,28 +12,25 @@ st.title("Aplicación de Análisis Estadístico e IA")
 
 # --- MÓDULO 1: CARGA DE DATOS ---
 st.sidebar.header("Configuración de Datos")
-opcion_datos = st.sidebar.selectbox("Origen de los datos", ["Subir CSV", "Generación Sintética"])
-
-df = None
+opcion_datos = st.sidebar.selectbox("Origen de los datos", ["Subir CSV", "Generación Sintética"], key="origen_datos")
 
 if opcion_datos == "Subir CSV":
     archivo = st.sidebar.file_uploader("Carga tu archivo CSV", type=["csv"])
     if archivo:
-        df = pd.read_csv(archivo)
+        st.session_state.df = pd.read_csv(archivo)
 else:
     n_sintetico = st.sidebar.slider("Tamaño de muestra", 30, 1000, 100)
     if st.sidebar.button("Generar datos aleatorios"):
+        # Creamos datos con una distribución normal
         data = np.random.normal(loc=50, scale=10, size=n_sintetico)
-        df = pd.DataFrame(data, columns=["Variable_Objetivo"])
+        st.session_state.df = pd.DataFrame(data, columns=["Variable Objetivo"])
+        st.sidebar.success("¡Datos generados!")
 
-if df is not None:
-    st.subheader("Vista previa de los datos")
-    st.write(df.head())
-    
-    col_seleccionada = st.selectbox("Selecciona la variable para analizar", df.columns)
-    st.info(f"Variable seleccionada: {col_seleccionada}")
+# Esto es lo que hace que las tablas funcionen:
+if 'df' in st.session_state:
+    df = st.session_state.df
 else:
-    st.warning("Por favor, carga datos o genera una muestra sintética en la barra lateral.")
+    df = None
 
 # --- MÓDULO 2: VISUALIZACIÓN CORREGIDO ---
 if df is not None:
