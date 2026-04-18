@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+from scipy import stats
 
 st.set_page_config(page_title="Asistente Estadístico", layout="wide")
 
@@ -30,3 +33,28 @@ if df is not None:
     st.info(f"Variable seleccionada: {col_seleccionada}")
 else:
     st.warning("Por favor, carga datos o genera una muestra sintética en la barra lateral.")
+
+# --- MÓDULO 2: VISUALIZACIÓN ---
+if df is not None:
+    st.header("📈 Visualización de Distribuciones")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Histograma con KDE
+        fig_hist = px.histogram(df, x=col_seleccionada, marginal="box", 
+                                 title=f"Distribución de {col_seleccionada}",
+                                 nbins=30, kde=True)
+        st.plotly_chart(fig_hist)
+
+    with col2:
+        # Boxplot para Outliers
+        fig_box = px.box(df, y=col_seleccionada, title=f"Boxplot de {col_seleccionada}")
+        st.plotly_chart(fig_box)
+
+    # Preguntas de interpretación (Requisito de la tarea)
+    st.subheader("¿Qué observamos?")
+    res_normal = st.radio("¿La distribución parece normal?", ["Sí", "No", "No estoy seguro"])
+    res_sesgo = st.text_input("¿Hay sesgo o outliers? Explica brevemente:")
+
+    
